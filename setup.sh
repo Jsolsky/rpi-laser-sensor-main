@@ -2,7 +2,8 @@
 
 # --- CONFIGURATION ---
 REPO_URL="https://github.com/Jsolsky/rpi-laser-sensor-main.git"
-TARGET_DIR="/home/pi/rpi-laser-sensor-main"
+# TARGET_DIR="/home/pi/rpi-laser-sensor-main"
+TARGET_DIR="/Users/jakesolsky/rpi-laser-sensor-main"
 SERVER_SCRIPT="server.py"
 # ---------------------
 
@@ -36,6 +37,7 @@ pip install --upgrade pip
 if [ -f "requirements.txt" ]; then
     pip install -r requirements.txt
 fi
+sudo apt install python3-picamera2
 
 #4. Launch Server
 cd $TARGET_DIR
@@ -43,4 +45,5 @@ cd $TARGET_DIR
 echo "Launching server.py..."
 # Using 'exec' ensures the shell hands over the process to Python 
 # This makes systemd tracking much more accurate
-exec /usr/bin/python3 $SERVER_SCRIPT >> /home/pi/server_log.txt 2>&1
+exec /usr/bin/python3 $SERVER_SCRIPT
+# exec /usr/bin/python3 $SERVER_SCRIPT >> /home/pi/server_log.txt 2>&1
