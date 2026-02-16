@@ -2,8 +2,7 @@
 
 # --- CONFIGURATION ---
 REPO_URL="https://github.com/Jsolsky/rpi-laser-sensor-main.git"
-# TARGET_DIR="/home/pi/rpi-laser-sensor-main"
-TARGET_DIR="/Users/jakesolsky/rpi-laser-sensor-main"
+TARGET_DIR="/home/pi/rpi-laser-sensor-main"
 SERVER_SCRIPT="server.py"
 # ---------------------
 

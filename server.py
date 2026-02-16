@@ -44,8 +44,8 @@ class SensorServer:
     def get_image_endpoint(self):
 
         img_data = self.read_image()
-        _, buffer = cv2.imencode('.jpg', img_data)
-        base64_response = base64.b64encode(buffer).decode('utf-8')
+        # _, buffer = cv2.imencode('.jpg', img_data)
+        base64_response = base64.b64encode(img_data).decode('utf-8')
 
         return base64_response
     
