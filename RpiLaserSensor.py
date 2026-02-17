@@ -9,7 +9,11 @@ class RpiLaserSensor:
         self.y = 0
         self.image = 0
     
-    def read_position(self):
+    def read_position_grid(self):
+
+        return self.x, self.y
+
+    def read_position_gauss(self):
 
         return self.x, self.y
     
