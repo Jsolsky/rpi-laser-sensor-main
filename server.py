@@ -25,22 +25,22 @@ class SensorServer:
         
         self.app.add_url_rule("/image", "image", self.get_image_endpoint)
         self.app.add_url_rule("/position_grid", "position_grid", self.get_position_grid_endpoint)
-        self.app.add_url_rule("/position", "position", self.get_position_gauss_endpoint)
+        self.app.add_url_rule("/position", "position", self.get_position_endpoint)
 
         self.running = True
         
 
     def read_sensors_grid(self):
 
-        position_x_reading, position_y_reading = laser_sensor.read_position_grid()
+        position_x, position_y = laser_sensor.read_position_grid()
         
-        return [position_x_reading, position_y_reading]
+        return [position_x, position_y]
 
-    def read_sensors_gauss(self):
+    def read_sensors(self):
 
-        position_x_reading, position_y_reading = laser_sensor.read_position_gauss()
+        position_x, position_y = laser_sensor.read_position_COM()
         
-        return [position_x_reading, position_y_reading]
+        return [position_x, position_y]
 
     def read_image(self):
 
@@ -57,14 +57,14 @@ class SensorServer:
         return {"base64":base64_response}
     
     def get_position_grid_endpoint(self):
-        position_x_reading, position_y_reading = laser_sensor.read_position_grid()
+        position_x, position_y = self.read_sensors_grid()
     
-        return {"position_x":position_x_reading, "position_y":position_y_reading}
+        return {"position_x":position_x, "position_y":position_y}
 
-    def get_position_gauss_endpoint(self):
-        position_x_reading, position_y_reading = laser_sensor.read_position_gauss()
+    def get_position_endpoint(self):
+        position_x, position_y = self.read_sensors()
     
-        return {"position_x":position_x_reading, "position_y":position_y_reading}
+        return {"position_x":position_x, "position_y":position_y}
 
     def start(self):
 
