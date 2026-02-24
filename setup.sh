@@ -32,11 +32,19 @@ fi
 
 echo "Updating dependencies..."
 source venv/bin/activate
-pip install --upgrade pip
+
 if [ -f "requirements.txt" ]; then
-    pip install -r requirements.txt
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        # Skip empty lines and comments
+        [[ -z "$line" || "$line" =~ ^# ]] && continue
+        
+        # Clean the package name (removes version constraints like ==, >=)
+        package=$(echo "$line" | sed 's/[<>=].*//')
+        
+        echo "Installing python3-$package via APT..."
+        sudo apt install -y "python3-$package"
+    done < "requirements.txt"
 fi
-sudo apt install python3-picamera2
 
 #4. Launch Server
 cd $TARGET_DIR

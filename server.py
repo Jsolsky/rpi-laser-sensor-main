@@ -6,6 +6,9 @@ from dotenv import load_dotenv
 import cv2
 from flask import Flask, Response
 import base64
+from waitress import serve
+import logging
+from paste.translogger import TransLogger
 
 # Load variables from .env file
 load_dotenv()
@@ -23,13 +26,13 @@ class SensorServer:
         self.host = host
         self.port = int(port)
         
+        self.app.add_url_rule("/init_test", "init_test", self.picam_start)
         self.app.add_url_rule("/image", "image", self.get_image_endpoint)
         self.app.add_url_rule("/position_grid", "position_grid", self.get_position_grid_endpoint)
         self.app.add_url_rule("/position", "position", self.get_position_endpoint)
 
         self.running = True
         
-
     def read_sensors_grid(self):
 
         position_x, position_y = laser_sensor.read_position_grid()
@@ -66,23 +69,45 @@ class SensorServer:
     
         return {"position_x":position_x, "position_y":position_y}
 
-    def start(self):
+    def picam_start(self):
+        print("start init")
+        laser_sensor.start_cam()
+        print("complete init")
 
+        return {"test":"test"}
+
+    def start(self):
         print(f"Starting app on {self.host}:{self.port}")
         self.app.run(host=self.host, port=self.port, threaded=True)
-        
+
+    def stop(self):
+        try:
+            laser_sensor.stop()
+            self.running = False
+        except Exception as e:
+            self.running = False
+
+
+def get_local_time(timestamp):
+
+    tz = pytz.timezone('Australia/Sydney') 
+    dt = datetime.datetime.fromtimestamp(timestamp, tz)
+    return dt.timetuple()
+
+# 2. Patch the logging formatter converter
         
 if __name__ == "__main__":
     server = SensorServer()
-    try:
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+    logging.Formatter.converter = get_local_time
+
+    try: 
         print('Starting server')     
-        try:
-            server.start()
-        except Exception as e:
-            print("Failed to start server, error: " + str(e))
-            time.sleep(1)
-                
+        serve(TransLogger(server.app, setup_console_handler=False), host=server.host, port=server.port)
     except KeyboardInterrupt:
-        print('Keyboard interrupt, stopping server.')
+        server.stop()
+    # except Exception as e:
+    #     print(f"Error: {e}")
+
     
     
