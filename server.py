@@ -29,6 +29,7 @@ class SensorServer:
         self.app.add_url_rule("/init_test", "init_test", self.picam_start)
         self.app.add_url_rule("/image", "image", self.get_image_endpoint)
         self.app.add_url_rule("/position_grid", "position_grid", self.get_position_grid_endpoint)
+        self.app.add_url_rule("/position_grid_full", "position_grid_full", self.get_grid_full)
         self.app.add_url_rule("/position", "position", self.get_position_endpoint)
 
         self.running = True
@@ -74,7 +75,24 @@ class SensorServer:
         laser_sensor.start_cam()
         print("complete init")
 
-        return {"test":"test"}
+        return {"Status":"Complete"}
+
+
+    def get_grid_full(self):
+
+        try:
+            position_x, position_y, vertical_line_gradient, vertical_line_intercept, horizontal_line_gradient, horizontal_line_intercept = laser_sensor.read_grid_full()
+        except Exception as e:
+            print(f"Error: {e}")
+
+        return {
+            "position_x":position_x,  
+            "position_y":position_y,
+            "vertical_line_gradient":vertical_line_gradient, 
+            "vertical_line_intercept":vertical_line_intercept, 
+            "horizontal_line_gradient":horizontal_line_gradient, 
+            "horizontal_line_intercept":horizontal_line_intercept
+        } 
 
     def start(self):
         print(f"Starting app on {self.host}:{self.port}")
