@@ -32,6 +32,11 @@ class RpiLaserSensor:
 
         return img_array
 
+    def beam_is_present(self, img_array):
+        if img_array[:,:,0].var() <= 100:
+            return False
+        return True
+
 
     def find_grid(self, img_array):
                 # Guassian smoothing (to reduce effect of noise spikes)
@@ -45,7 +50,6 @@ class RpiLaserSensor:
 
         cluster_indexes = np.unique(labeled_array)
         clusters_df = pd.DataFrame(cluster_indexes[1:], columns=["index"])
-        clusters_df["index"].apply(lambda x: print(self.find_COM(labeled_array == x)))
         clusters_df[["centre_horizontal", "centre_vertical"]] = clusters_df["index"].apply(lambda x: pd.Series(self.find_COM(labeled_array == x)))
         clusters_df["size"] = clusters_df["index"].apply(lambda x: (labeled_array == x).sum())
         clusters_df["radius_approximation"] = np.sqrt(clusters_df["size"]/np.pi)
@@ -157,6 +161,9 @@ class RpiLaserSensor:
 
         img_array = self.img_data_to_numpy(img_data)
 
+        if not self.beam_is_present(img_array):
+            return
+        
         # Channel selection/filtering
         img_array = img_array[:, :, 1]
 
@@ -183,6 +190,9 @@ class RpiLaserSensor:
             self.__init__()
 
         img_array = self.img_data_to_numpy(img_data)
+
+        if not self.beam_is_present(img_array):
+            return
 
         # Channel selection/filtering
         img_array = img_array[:, :, 1]
@@ -215,6 +225,9 @@ class RpiLaserSensor:
         
         img_array = self.img_data_to_numpy(img_data)
 
+        if not self.beam_is_present(img_array):
+            return
+
         # Channel selection/filtering
         img_array = img_array[:, :, 1]
 
@@ -246,15 +259,11 @@ class RpiLaserSensor:
         image_array_weighted_x_filtered = image_array_weighted_x[image_array_weighted_x > 0]
         position_x = np.average(image_array_weighted_x_filtered)
 
-        print(f"position_x: {position_x}")
-
         # Find y position
         index_y = np.array(range(0, img_array.shape[0]))
         image_array_weighted_y = index_y * img_array.transpose() # transposed to rotate 90 degrees
         image_array_weighted_y_filtered = image_array_weighted_y[image_array_weighted_y > 0]
         position_y = np.average(image_array_weighted_y_filtered)
-        
-        print(f"position_y: {position_y}")
     
         return [position_x, position_y]
 

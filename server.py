@@ -29,13 +29,16 @@ class SensorServer:
         self.app.add_url_rule("/init_test", "init_test", self.picam_start)
         self.app.add_url_rule("/image", "image", self.get_image_endpoint)
         self.app.add_url_rule("/position_grid", "position_grid", self.get_position_grid_endpoint)
-        self.app.add_url_rule("/position_grid_full", "position_grid_full", self.get_grid_full)
-        self.app.add_url_rule("/position", "position", self.get_position_endpoint)
+        self.app.add_url_rule("/position_grid_full", "position_grid_full", self.get_grid_full_endpoint)
+
+        # Change this back later
+        # self.app.add_url_rule("/position", "position", self.get_position_endpoint)
+        self.app.add_url_rule("/position", "position", self.get_position_grid_endpoint)
 
         self.running = True
         
     def read_sensors_grid(self):
-
+        
         position_x, position_y = laser_sensor.read_position_grid()
         
         return [position_x, position_y]
@@ -61,14 +64,25 @@ class SensorServer:
         return {"base64":base64_response}
     
     def get_position_grid_endpoint(self):
-        position_x, position_y = self.read_sensors_grid()
-    
-        return {"position_x":position_x, "position_y":position_y}
+        
+        try:
+            position_x, position_y = self.read_sensors_grid()
+        
+            return {"position_x":position_x, "position_y":position_y}
+        except Exception as e:
+            print(f"Error {e}")
+            return {"position_x":None, "position_y":None}
+
 
     def get_position_endpoint(self):
-        position_x, position_y = self.read_sensors()
-    
-        return {"position_x":position_x, "position_y":position_y}
+
+        try:
+            position_x, position_y = self.read_sensors()
+        
+            return {"position_x":position_x, "position_y":position_y}
+        except Exception as e:
+            print(f"Error {e}")
+            return {"position_x":None, "position_y":None}
 
     def picam_start(self):
         print("start init")
@@ -78,21 +92,30 @@ class SensorServer:
         return {"Status":"Complete"}
 
 
-    def get_grid_full(self):
+    def get_grid_full_endpoint(self):
 
         try:
             position_x, position_y, vertical_line_gradient, vertical_line_intercept, horizontal_line_gradient, horizontal_line_intercept = laser_sensor.read_grid_full()
+        
+            return {
+                "position_x":position_x,  
+                "position_y":position_y,
+                "vertical_line_gradient":vertical_line_gradient, 
+                "vertical_line_intercept":vertical_line_intercept, 
+                "horizontal_line_gradient":horizontal_line_gradient, 
+                "horizontal_line_intercept":horizontal_line_intercept
+            } 
         except Exception as e:
             print(f"Error: {e}")
-
+        
         return {
-            "position_x":position_x,  
-            "position_y":position_y,
-            "vertical_line_gradient":vertical_line_gradient, 
-            "vertical_line_intercept":vertical_line_intercept, 
-            "horizontal_line_gradient":horizontal_line_gradient, 
-            "horizontal_line_intercept":horizontal_line_intercept
-        } 
+                "position_x":None,  
+                "position_y":None,
+                "vertical_line_gradient":None, 
+                "vertical_line_intercept":None, 
+                "horizontal_line_gradient":None, 
+                "horizontal_line_intercept":None
+            } 
 
     def start(self):
         print(f"Starting app on {self.host}:{self.port}")
