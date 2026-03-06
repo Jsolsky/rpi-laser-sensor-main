@@ -30,10 +30,7 @@ class SensorServer:
         self.app.add_url_rule("/image", "image", self.get_image_endpoint)
         self.app.add_url_rule("/position_grid", "position_grid", self.get_position_grid_endpoint)
         self.app.add_url_rule("/position_grid_full", "position_grid_full", self.get_grid_full_endpoint)
-
-        # Change this back later
-        # self.app.add_url_rule("/position", "position", self.get_position_endpoint)
-        self.app.add_url_rule("/position", "position", self.get_position_grid_endpoint)
+        self.app.add_url_rule("/position", "position", self.get_position_endpoint)
 
         self.running = True
         
